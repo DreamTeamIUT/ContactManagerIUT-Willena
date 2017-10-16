@@ -1,0 +1,37 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Détails du contact</h3>
+    </div>
+    <div class="panel-body">
+        {% if found %}
+        {% for h in c.available_headers %}
+        <div class="row">
+            <div class="col-md-3"><strong>{{ h.name }}</strong></div>
+            <div class="col-md-9">
+                 {% if h.__class__.__name__ == "ImageField" %}
+                    <img width="120px" height="auto" src="data:image/jpg;base64,{{ h.value }}" alt="profil">
+                    {% else %}
+                    {{ h.value }}
+                    {% endif %}
+            </div>
+        </div>
+        <hr>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <a href="/manage/delete/{{ i }}" class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i></a>
+                <a href="/manage/edit/{{ i }}" class="btn btn-info"><i class="glyphicon glyphicon-edit"></i></a>
+                <a href="/manage/exports/{{ i }}" class="btn btn-warning"><i
+                        class="glyphicon glyphicon-download"></i></a>
+            </div>
+        </div>
+        {% else %}
+            <div class="alert alert-warning">
+                Aucun contact ne correspond...
+            </div>
+        {% endif %}
+
+
+    </div>
+</div>

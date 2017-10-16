@@ -1,0 +1,122 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Ajouter un contact</h3>
+    </div>
+    <div class="panel-body">
+        {% if added %}
+        <div class="alert alert-success">
+            <p>Le contact a été ajouté </p>
+        </div>
+        {% elif err != {} %}
+        <div class="alert alert-danger">
+            <p>Des ereurs sont présente !</p>
+            <ul>
+                {% for k in err.keys() %}
+                <li><b>{{ err[k]['name'] }}</b>: {{ err[k]['message'] }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif%}
+
+        <form class="form-horizontal" action="/manage/add/" onsubmit="return sendForm()" enctype="multipart/form-data" method="post">
+            {% for h in headers %}
+            <div class="form-group {% if h.writabe_name in err.keys() %}has-error{% endif %}">
+                <label for="{{ h.writabe_name }}" class="col-sm-2 control-label">{{ h.name }}</label>
+                {% if h.__class__.__name__ == "ImageField" %}
+                <div class="col-md-2">
+                    <div><INPUT  type="radio" id="url_file" name="typeImage" value="url"> <label
+                            for="url_file">URL</label></div>
+                    <div>
+                        <INPUT type="radio" id="file_file" checked name="typeImage" value="file"> <label
+                            for="file_file">local
+                        file</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <input type="file" onchange="loadImage()" value=""
+                           class="form-control  photo"
+                           id="{{ h.writabe_name }}_file">
+                    <input type="hidden" name="{{ h.writabe_name }}" value="{{ h.value }}"
+                           class="photo_data"
+                           id="{{ h.writabe_name }}">
+                </div>
+                <div class="col-md-2">
+                    <img width="120px" class="photo_render" height="auto" src="data:image/jpg;base64,{{ h.value }}" alt="profil">
+                </div>
+
+                {% else %}
+                <div class="col-sm-10">
+                    <input type="text" name="{{ h.writabe_name }}" value="{% if not added %}{{h.value}}{% endif %}"
+                           class="form-control"
+                           id="{{ h.writabe_name }}"
+                           placeholder="{{ h.DESCRIPTION }}">
+
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    {% if editmode %}
+                    <button type="submit" class="btn btn-default">Editer</button>
+                    {% else %}
+                    <button type="submit" class="btn btn-default">Ajouter</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% if editmode %}
+            <input type="hidden" value="{{id}}" name="editMode">
+            {% endif %}
+        </form>
+    </div>
+</div>
+<script>
+
+    function loadImage(){
+        if( $('.photo').attr('type') ==  'file')
+        {
+              var file    = document.querySelector('.photo').files[0];
+              if (file.type != 'image/jpeg')
+              {
+                alert('Not a valid image')
+                var $el = $('.photo');
+                $el.wrap('<form>').closest('form').get(0).reset();
+                $el.unwrap();
+                return
+              }
+              var reader  = new FileReader();
+
+              reader.addEventListener("load", function () {
+              document.querySelector('.photo_render').src = reader.result;
+              }, false);
+
+              if (file) {
+                reader.readAsDataURL(file);
+              }
+        }
+    }
+
+    function sendForm(){
+        var d = ""
+        if ($('.photo').attr('type') == 'file')
+            d = document.querySelector('.photo_render').src.split(',')[1]
+        else
+            d = document.querySelector('.photo').value
+        document.querySelector('.photo_data').value = d
+
+        $('td[name=typeImage]').removeAttr("name")
+
+        return true;
+    }
+
+    $('input[type=radio][name=typeImage]').on('change', function(){
+        if ($('.photo').attr('type') == 'file')
+            $('.photo').attr('type', 'text')
+        else
+            $('.photo').attr('type', 'file')
+    });
+
+
+
+</script>

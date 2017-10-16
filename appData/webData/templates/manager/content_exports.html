@@ -1,0 +1,117 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Exportation de contacts</h3>
+    </div>
+    <div class="panel-body">
+        {% if emptyquery %}
+            <div class="alert alert-info">
+                Merci de selectionner un contact, et de fournir un nom pour le fichier.
+            </div>
+        {% endif %}
+
+        {% if contacts|count > 0 %}
+
+        <form class="form-horizontal" id="exportform" action="/manage/exports/" onsubmit="return prepare()" method="post">
+            <div class="form-group">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+
+                        <th>
+                            {% if iden != "" %}
+                            <input  class="form-control disabled"  checked disabled onchange="" type="checkbox">
+                            {% else %}
+                            <input  class="form-control"  onchange="var checkboxes=$('.uc:checkbox');if($(this).is(':checked')){checkboxes.prop('checked', true);}else{checkboxes.prop('checked', false);}" type="checkbox">
+                            {% endif %}
+                        </th>
+
+
+                        {% for h in contacts[0].important_headers('Im', 'E') %}
+                        <th>{{ h.name }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in contacts %}
+                    <tr>
+
+                        <td>
+                            {% if iden != "" %}
+                            <input class="form-control uc disabled" disabled checked type="checkbox" value="{{contacts.index(c)}}" name="chk">
+                            {% else %}
+                            <input class="form-control uc" type="checkbox" value="{{contacts.index(c)}}" name="chk">
+                            {% endif %}
+                        </td>
+
+                        {% for h in c.important_headers('Im', 'E') %}
+                        <td>
+                            {% if h.value == "" %}
+                            <span class="text-muted">-</span>
+                            {% else %}
+                            {% if h.__class__.__name__ == "ImageField" %}
+                            <img width="50px" height="auto" src="data:image/jpg;base64,{{ h.value }}" alt="profil">
+                            {% else %}
+                            {{ h.value }}
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group">
+                <label for="format" class="col-sm-2 control-label">Format de l'exportation</label>
+                <div class="col-sm-10">
+                    <select class="form-control" name="format" id="format">
+                        {% for f in formats.keys() %}
+                        <option value="{{ f }}"> {{ f }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="filename" class="col-sm-2 control-label">Nom du fichier</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="filename" id="filename">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="alert alert-info col-sm-10 col-md-offset-1">
+                    Pour certains formats, il n'est pas possible d'exporter sous forme d'un unique fichier.
+                    Le fichier résultant de l'exportation sera donc un <strong>zip</strong>.
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-default">Exporter</button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+            Aucun contact à exporter...
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+<script type="text/javascript">
+    function click()
+    {
+
+       console.log($('.uc:checkbox').attr('checked'))
+       console.log($('#all_cb').attr('checked'))
+
+       var checkboxes=$('.uc:checkbox');if($(this).is(':checked')){checkboxes.prop('checked', true);}else{checkboxes.prop('checked', false);}
+    }
+
+    function prepare()
+    {
+        $("#exportform :input").removeAttr("disabled");
+        return true
+    }
+
+</script>

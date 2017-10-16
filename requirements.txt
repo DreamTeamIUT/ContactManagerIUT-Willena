@@ -1,0 +1,6 @@
+cherrypy
+jinja2
+phonenumbers
+ldif3
+reportlab
+vobject
